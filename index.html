@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bantay Baha Flood Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 375px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .status-normal { color: green; }
+        .status-alert { color: orange; }
+        .status-danger { color: red; }
+        h1 { font-size: 36px; text-align: center; margin: 10px 0; }
+        h2 { text-align: center; font-size: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+
+    <h2>Current Water Level</h2>
+    <h1 id="currentLevel">-- cm</h1>
+    <h2 id="statusText">Loading...</h2>
+
+    <!-- Analytics Section -->
+    <div id="analytics" style="text-align: center; margin-bottom: 20px; font-size: 14px; background: #f9f9f9; padding: 10px; border-radius: 5px;">
+        <strong>Trend:</strong> <span id="trend">--</span> | 
+        <strong>Avg:</strong> <span id="avgLevel">--</span> cm<br>
+        <strong>Min:</strong> <span id="minLevel">--</span> cm | 
+        <strong>Max:</strong> <span id="maxLevel">--</span> cm
+    </div>
+    <button id="advisoryBtn" onclick="generateAdvisory()" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; margin-bottom: 10px; cursor: pointer;">Generate Advisory</button>
+<div id="advisoryText" style="margin-bottom: 20px; font-weight: bold; text-align: center; color: #333;"></div>
+    <canvas id="waterChart" width="375" height="250"></canvas>
+
+    <h3>Latest 10 Readings</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Level (cm)</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+
+    <script>
+        let waterChart;
+
+        async function fetchReadings() {
+            try {
+                const response = await fetch('/api/readings');
+                const data = await response.json();
+                
+                if (data.length === 0) return;
+
+          
+                const latest = data[0];
+                const currentCm = latest.waterLevelCm;
+                const levelEl = document.getElementById('currentLevel');
+                const statusEl = document.getElementById('statusText');
+
+                levelEl.innerText = `${currentCm} cm`;
+                levelEl.className = '';
+                statusEl.className = '';
+
+                if (currentCm >= 150) {
+                    levelEl.classList.add('status-danger');
+                    statusEl.classList.add('status-danger');
+                    statusEl.innerText = "DANGER";
+                } else if (currentCm >= 100) {
+                    levelEl.classList.add('status-alert');
+                    statusEl.classList.add('status-alert');
+                    statusEl.innerText = "ALERT";
+                } else {
+                    levelEl.classList.add('status-normal');
+                    statusEl.classList.add('status-normal');
+                    statusEl.innerText = "NORMAL";
+                }
+
+               
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = ''; 
+                const latest10 = data.slice(0, 10);
+                
+                latest10.forEach(reading => {
+                    const row = document.createElement('tr');
+                    const time = new Date(reading.timestamp).toLocaleTimeString();
+                    row.innerHTML = `<td>${time}</td><td>${reading.waterLevelCm}</td>`;
+                    tableBody.appendChild(row);
+                });
+
+             
+                const chartData = [...data].reverse();
+                const labels = chartData.map(d => new Date(d.timestamp).toLocaleTimeString());
+                const levels = chartData.map(d => d.waterLevelCm);
+
+                if (waterChart) {
+                    waterChart.data.labels = labels;
+                    waterChart.data.datasets[0].data = levels;
+                    waterChart.update();
+                } else {
+                    const ctx = document.getElementById('waterChart').getContext('2d');
+                    waterChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{ label: 'Water Level (cm)', data: levels, borderColor: '#007bff', fill: false, tension: 0.1 }]
+                        },
+                        options: { animation: false, scales: { y: { beginAtZero: true, max: 500 } } }
+                    });
+                }
+
+             
+                const summaryRes = await fetch('/api/summary');
+                const summaryData = await summaryRes.json();
+                if (!summaryData.message) {
+                    document.getElementById('trend').innerText = summaryData.trend;
+                    document.getElementById('avgLevel').innerText = summaryData.average;
+                    document.getElementById('minLevel').innerText = summaryData.min;
+                    document.getElementById('maxLevel').innerText = summaryData.max;
+                }
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        fetchReadings();
+        setInterval(fetchReadings, 5000);
+        async function generateAdvisory() {
+    const btn = document.getElementById('advisoryBtn');
+    const textEl = document.getElementById('advisoryText');
+    
+    btn.disabled = true;
+    btn.innerText = "Generating AI Advisory...";
+    textEl.innerText = "";
+
+    try {
+        const response = await fetch('/api/advisory', { method: 'POST' });
+        const data = await response.json();
+        textEl.innerText = data.advisory;
+    } catch (error) {
+        textEl.innerText = "Error connecting to server.";
+    }
+    
+    btn.disabled = false;
+    btn.innerText = "Generate Advisory";
+}
+    </script>
+</body>
+</html>

@@ -24,11 +24,11 @@
 
 *   [x] **Setup:** Repository creation, Codespaces setup, API keys
 *   [x] **Part A:** Sprint planning (Done)
-*   [ ] **Part B:** Back-end API (To Do)
-*   [ ] **Part C:** IoT sensor simulator (To Do)
-*   [ ] **Part D:** Mobile-responsive front end (To Do)
-*   [ ] **Part E:** Data analytics (To Do)
-*   [ ] **Part F:** Generative AI advisory (To Do)
+*   [ ] **Part B:** Back-end API (Done)
+*   [ ] **Part C:** IoT sensor simulator (Done)
+*   [ ] **Part D:** Mobile-responsive front end (Done)
+*   [ ] **Part E:** Data analytics (Done)
+*   [ ] **Part F:** Generative AI advisory (Done)
 *   [ ] **Part G:** Cloud deployment (To Do)
 *   [ ] **Part H:** Security, ethics and emerging tech (To Do)
 *   [ ] **Submission:** Screen recording and final push (To Do)
