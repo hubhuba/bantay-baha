@@ -1,0 +1,21 @@
+[33mcommit 5a3d3e4c62d24835ee0bbe85210121b4f63468c2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: hubhuba <hezronron1010@gmail.com>
+Date:   Sat Oct 10 08:07:44 2026 +0000
+
+    Remove .env from repository tracking
+
+[33mcommit c1618a8aa2fc62ef75e98df3095276babbacda95[m
+Author: hubhuba <hezronron1010@gmail.com>
+Date:   Sat Oct 10 08:04:33 2026 +0000
+
+    Part D - E - F done
+    
+    using google ai studio for api key
+
+[33mcommit 8ac68c8f4ff6487638188d5c07c81a71578f124a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: hubhuba <hezronron1010@gmail.com>
+Date:   Sat Oct 10 07:33:59 2026 +0000
+
+    Add PLAN.md for sprint planning (Part A)
+    Create Express REST API in server.js (Part B)
+    Build IoT sensor simulator script (Part C)
